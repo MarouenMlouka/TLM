@@ -20,11 +20,11 @@
             margin-left: 10px;
         }
     </style>
-    <!-- Ajouter Firebase SDK -->
+    <!-- Firebase scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js"></script>
     <script>
-        // Votre configuration Firebase
+        // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyB5ylD0VICzYIcBEGEDduYotndKz5NrAIY",
             authDomain: "tlm2020.firebaseapp.com",
@@ -34,10 +34,8 @@
             appId: "1:214565744764:web:cc17d2df87206106af19f9",
             measurementId: "G-9RJK2B6S3S"
         };
-
-        // Initialiser Firebase
-        const firebaseApp = firebase.initializeApp(firebaseConfig);
-        const db = firebaseApp.database();
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
         // Fonction pour ajouter des points à un groupe
         function ajouterPoints(index) {
@@ -46,17 +44,14 @@
             if (motCle === "TLM") {
                 var pointsAjoutes = parseInt(prompt("Combien de points souhaitez-vous ajouter ?"));
                 if (!isNaN(pointsAjoutes) && pointsAjoutes > 0) {
-                    // Mettre à jour les points dans Firebase
-                    db.ref('points/' + index).transaction(function(currentPoints) {
+                    // Mettre à jour les points dans Firebase en utilisant une transaction pour la cohérence
+                    const pointsRef = db.ref('points/' + index);
+                    pointsRef.transaction((currentPoints) => {
                         return (currentPoints || 0) + pointsAjoutes;
-                    }, function(error, committed, snapshot) {
+                    }, (error, committed, snapshot) => {
                         if (error) {
                             alert("Une erreur est survenue lors de l'ajout des points : " + error.message);
-                        } else if (!committed) {
-                            alert("Impossible de mettre à jour les points. Veuillez réessayer.");
-                        } else {
-                            // Afficher les points mis à jour sur la page
-                            document.getElementById("points" + index).innerText = snapshot.val();
+                        } else if (committed) {
                             alert(pointsAjoutes + " points ajoutés avec succès !");
                         }
                     });
@@ -77,12 +72,10 @@
                 if (!isNaN(newPoints)) {
                     // Mettre à jour les points dans Firebase
                     db.ref('points/' + index).set(newPoints)
-                        .then(function() {
-                            // Afficher les points mis à jour sur la page
-                            document.getElementById("points" + index).innerText = newPoints;
+                        .then(() => {
                             alert("Points modifiés avec succès !");
                         })
-                        .catch(function(error) {
+                        .catch((error) => {
                             alert("Une erreur est survenue lors de la modification des points : " + error.message);
                         });
                 } else {
@@ -101,16 +94,11 @@
                 var confirmReset = confirm("Êtes-vous sûr de vouloir réinitialiser tous les points ?");
                 if (confirmReset) {
                     // Réinitialiser les points dans Firebase
-                    db.ref('points').remove()
-                        .then(function() {
-                            // Réinitialiser les points sur la page
-                            var groupElements = document.querySelectorAll(".points");
-                            groupElements.forEach(function(element) {
-                                element.innerText = "0";
-                            });
+                    db.ref('points').set({})
+                        .then(() => {
                             alert("Tous les points ont été réinitialisés !");
                         })
-                        .catch(function(error) {
+                        .catch((error) => {
                             alert("Une erreur est survenue lors de la réinitialisation des points : " + error.message);
                         });
                 }
@@ -120,15 +108,15 @@
         }
 
         // Chargement initial des points depuis Firebase
-        document.addEventListener("DOMContentLoaded", function() {
+        window.onload = function() {
             for (var i = 1; i <= 10; i++) {
-                // Récupérer les points depuis Firebase
-                db.ref('points/' + i).on('value', function(snapshot) {
-                    var points = snapshot.val() || 0;
-                    document.getElementById("points" + snapshot.key).innerText = points;
+                const pointsRef = db.ref('points/' + i);
+                pointsRef.once('value', (snapshot) => {
+                    const points = snapshot.val() || 0;
+                    document.getElementById("points" + i).innerText = points;
                 });
             }
-        });
+        };
     </script>
 </head>
 <body>
@@ -142,80 +130,75 @@
             <th>Ajouter des points</th>
             <th>Modifier les points</th>
         </tr>
-        <!-- Groupe 1 -->
+        <!-- Génération dynamique des lignes de tableau -->
+        <!-- Vous pouvez remplacer cela par une boucle JavaScript si nécessaire -->
         <tr>
             <td>Groupe 1</td>
-            <td><span id="points1" class="points">0</span></td>
+            <td><span id="points1">0</span></td>
             <td><button onclick="ajouterPoints(1)">Ajouter</button></td>
             <td><button onclick="modifierPoints(1)">Modifier</button></td>
         </tr>
-        <!-- Groupe 2 -->
         <tr>
             <td>Groupe 2</td>
-            <td><span id="points2" class="points">0</span></td>
+            <td><span id="points2">0</span></td>
             <td><button onclick="ajouterPoints(2)">Ajouter</button></td>
             <td><button onclick="modifierPoints(2)">Modifier</button></td>
         </tr>
-        <!-- Groupe 3 -->
         <tr>
             <td>Groupe 3</td>
-            <td><span id="points3" class="points">0</span></td>
+            <td><span id="points3">0</span></td>
             <td><button onclick="ajouterPoints(3)">Ajouter</button></td>
             <td><button onclick="modifierPoints(3)">Modifier</button></td>
         </tr>
-        <!-- Groupe 4 -->
         <tr>
             <td>Groupe 4</td>
-            <td><span id="points4" class="points">0</span></td>
+            <td><span id="points4">0</span></td>
             <td><button onclick="ajouterPoints(4)">Ajouter</button></td>
             <td><button onclick="modifierPoints(4)">Modifier</button></td>
         </tr>
-        <!-- Groupe 5 -->
         <tr>
             <td>Groupe 5</td>
-            <td><span id="points5" class="points">0</span></td>
+            <td><span id="points5">0</span></td>
             <td><button onclick="ajouterPoints(5)">Ajouter</button></td>
             <td><button onclick="modifierPoints(5)">Modifier</button></td>
         </tr>
-        <!-- Groupe 6 -->
         <tr>
             <td>Groupe 6</td>
-            <td><span id="points6" class="points">0</span></td>
+            <td><span id="points6">0</span></td>
             <td><button onclick="ajouterPoints(6)">Ajouter</button></td>
             <td><button onclick="modifierPoints(6)">Modifier</button></td>
         </tr>
-        <!-- Groupe 7 -->
         <tr>
             <td>Groupe 7</td>
-            <td><span id="points7" class="points">0</span></td>
+            <td><span id="points7">0</span></td>
             <td><button onclick="ajouterPoints(7)">Ajouter</button></td>
             <td><button onclick="modifierPoints(7)">Modifier</button></td>
         </tr>
-        <!-- Groupe 8 -->
         <tr>
             <td>Groupe 8</td>
-            <td><span id="points8" class="points">0</span></td>
+            <td><span id="points8">0</span></td>
             <td><button onclick="ajouterPoints(8)">Ajouter</button></td>
             <td><button onclick="modifierPoints(8)">Modifier</button></td>
         </tr>
-        <!-- Groupe 9 -->
         <tr>
             <td>Groupe 9</td>
-            <td><span id="points9" class="points">0</span></td>
+            <td><span id="points9">0</span></td>
             <td><button onclick="ajouterPoints(9)">Ajouter</button></td>
             <td><button onclick="modifierPoints(9)">Modifier</button></td>
         </tr>
-        <!-- Groupe 10 -->
         <tr>
             <td>Groupe 10</td>
-            <td><span id="points10" class="points">0</span></td>
+            <td><span id="points10">0</span></td>
             <td><button onclick="ajouterPoints(10)">Ajouter</button></td>
             <td><button onclick="modifierPoints(10)">Modifier</button></td>
         </tr>
     </table>
 
-    <!-- Bouton de réinitialisation des points -->
-    <button onclick="resetPoints()">Réinitialiser tous les points</button>
+    <!-- Diagramme de suivi -->
+    <h2>Diagramme de suivi du cumul de points</h2>
+    <!-- Ajoutez ici le diagramme de suivi des points des différents groupes -->
 
+    <!-- Bouton Re-start -->
+    <button onclick="resetPoints()">Re-start (Réinitialiser tous les points)</button>
 </body>
 </html>
