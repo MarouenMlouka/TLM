@@ -9,11 +9,14 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js"></script>
     <!-- Intégrer d'autres bibliothèques JavaScript si nécessaire -->
-    <script src="script.js"></script> <!-- Fichier JS pour gérer les interactions -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Bibliothèque pour les graphiques -->
     <style>
         /* Styles CSS pour la mise en forme */
         .group-container {
             margin-bottom: 20px;
+        }
+        .group-buttons {
+            margin-bottom: 10px;
         }
         .group-table {
             width: 100%;
@@ -25,42 +28,27 @@
             padding: 8px;
             text-align: center;
         }
+        .points-diagram {
+            margin-top: 20px;
+        }
+        .reset-button {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="welcome-message">
         <h1>Welcome to TLM connecting people platform</h1>
     </div>
-    
-    <div class="group-container">
-        <h2>Groups</h2>
-        <div class="group-buttons">
-            <!-- Boutons pour chaque groupe -->
-            <button onclick="addPoints('Group 1')">Add Points</button>
-            <input type="text" id="group1-points" value="0" readonly>
-            <button onclick="modifyPoints('Group 1')">Modify Points</button>
-            <table class="group-table" id="group1-table">
-                <!-- Tableau pour afficher les détails du groupe 1 -->
-                <thead>
-                    <tr>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody id="group1-details-body">
-                    <!-- Les détails du groupe 1 seront ajoutés ici dynamiquement -->
-                </tbody>
-            </table>
-        </div>
+
+    <div id="groups-container">
+        <!-- Générer dynamiquement les groupes -->
     </div>
 
-    <!-- Répéter pour les autres groupes (Group 2 à Group 10) -->
-
-    <div class="points-diagram">
+    <div class="points-diagram" id="points-diagram">
         <!-- Diagramme de suivi des points -->
         <h2>Points Tracking Diagram</h2>
-        <div id="points-chart">
-            <!-- Placeholder pour le diagramme -->
-        </div>
+        <canvas id="points-chart"></canvas>
     </div>
 
     <div class="reset-button">
@@ -73,26 +61,135 @@
     <script>
         // Initialiser Firebase avec vos informations de configuration
         const firebaseConfig = {
-            // Vos clés et paramètres Firebase ici
+            apiKey: "AIzaSyB5ylD0VICzYIcBEGEDduYotndKz5NrAIY",
+            authDomain: "tlm2020.firebaseapp.com",
+            projectId: "tlm2020",
+            storageBucket: "tlm2020.appspot.com",
+            messagingSenderId: "214565744764",
+            appId: "1:214565744764:web:cc17d2df87206106af19f9",
+            measurementId: "G-9RJK2B6S3S"
         };
         firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-        // Exemple de fonction pour ajouter des points à un groupe et mettre à jour les détails
+        // Fonction pour ajouter des points à un groupe
         function addPoints(group) {
-            // Code pour ajouter des points à Firebase et mettre à jour l'interface utilisateur
-            const groupDetails = "Details will be updated dynamically based on Firebase data"; // Exemple de détails
-            document.getElementById(`group1-details-body`).innerHTML = `<tr><td>${groupDetails}</td></tr>`;
+            const keyword = prompt("Please enter the keyword 'TLM' to confirm adding points:");
+            if (keyword === 'TLM') {
+                const pointsRef = database.ref(`groups/${group}/points`);
+                pointsRef.transaction(function(currentPoints) {
+                    return (currentPoints || 0) + 10; // Ajouter 10 points
+                });
+
+                // Mettre à jour le diagramme de suivi des points
+                updatePointsDiagram();
+            } else {
+                alert("Invalid keyword. Points not added.");
+            }
         }
 
         // Fonction pour modifier les points d'un groupe
         function modifyPoints(group) {
-            // Code pour modifier les points à Firebase et mettre à jour l'interface utilisateur
+            const keyword = prompt("Please enter the admin keyword to modify points:");
+            if (keyword === 'admin') {
+                const newPoints = prompt(`Enter new points for ${group}:`);
+                const pointsRef = database.ref(`groups/${group}/points`);
+                pointsRef.set(parseInt(newPoints));
+
+                // Mettre à jour le diagramme de suivi des points
+                updatePointsDiagram();
+            } else {
+                alert("Unauthorized access. Points not modified.");
+            }
         }
 
         // Fonction pour réinitialiser tous les points
         function resetAllPoints() {
-            // Code pour réinitialiser tous les points à Firebase et mettre à jour l'interface utilisateur
+            const keyword = prompt("To reset all points, please enter the confirmation keyword '1925':");
+            if (keyword === '1925') {
+                // Réinitialiser tous les points dans Firebase
+                const groupsRef = database.ref('groups');
+                groupsRef.once('value', function(snapshot) {
+                    snapshot.forEach(function(childSnapshot) {
+                        const childKey = childSnapshot.key;
+                        const pointsRef = database.ref(`groups/${childKey}/points`);
+                        pointsRef.set(0);
+                    });
+                });
+
+                // Mettre à jour le diagramme de suivi des points
+                updatePointsDiagram();
+            } else {
+                alert("Incorrect keyword. Points not reset.");
+            }
         }
+
+        // Fonction pour mettre à jour le diagramme de suivi des points
+        function updatePointsDiagram() {
+            const groupsRef = database.ref('groups');
+            groupsRef.once('value', function(snapshot) {
+                const points = [];
+                snapshot.forEach(function(childSnapshot) {
+                    const pointsValue = childSnapshot.val().points || 0;
+                    points.push(pointsValue);
+                });
+
+                // Afficher le diagramme de suivi des points avec Chart.js
+                const ctx = document.getElementById('points-chart').getContext('2d');
+                const myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Groupe 1', 'Groupe 2', 'Groupe 3', 'Groupe 4', 'Groupe 5', 'Groupe 6', 'Groupe 7', 'Groupe 8', 'Groupe 9', 'Groupe 10'],
+                        datasets: [{
+                            label: 'Points',
+                            data: points,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        // Initialisation des groupes et affichage
+        window.onload = function() {
+            const groupsContainer = document.getElementById('groups-container');
+            let groupsHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                groupsHTML += `
+                    <div class="group-container">
+                        <h2>Groupe ${i}</h2>
+                        <div class="group-buttons">
+                            <button onclick="addPoints('Groupe ${i}')">Ajouter des points</button>
+                            <input type="text" id="Groupe ${i}-points" value="0" readonly>
+                            <button onclick="modifyPoints('Groupe ${i}')">Modifier les points</button>
+                            <table class="group-table">
+                                <thead>
+                                    <tr>
+                                        <th>Détails</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="Groupe ${i}-details-body">
+                                    <!-- Les détails du groupe ${i} seront ajoutés ici dynamiquement -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+            groupsContainer.innerHTML = groupsHTML;
+
+            // Initialisation du diagramme de suivi des points
+            updatePointsDiagram();
+        };
     </script>
 </body>
 </html>
