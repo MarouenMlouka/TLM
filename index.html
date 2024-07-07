@@ -16,7 +16,7 @@
             margin-bottom: 20px;
         }
         .group-buttons {
-            margin-bottom: 10px;
+            margin-top: 10px;
         }
         .group-table {
             width: 100%;
@@ -128,18 +128,45 @@
         function updatePointsDiagram() {
             const groupsRef = database.ref('groups');
             groupsRef.once('value', function(snapshot) {
+                const groupsContainer = document.getElementById('groups-container');
+                let groupsHTML = '';
+                snapshot.forEach(function(childSnapshot) {
+                    const groupKey = childSnapshot.key;
+                    const pointsValue = childSnapshot.val().points || 0;
+                    groupsHTML += `
+                        <div class="group-container">
+                            <h2>${groupKey}</h2>
+                            <div class="group-buttons">
+                                <button onclick="addPoints('${groupKey}')">Add Points</button>
+                                <input type="text" value="${pointsValue}" readonly>
+                                <button onclick="modifyPoints('${groupKey}')">Modify Points</button>
+                                <table class="group-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="${groupKey}-details-body">
+                                        <!-- Les détails du groupe ${groupKey} seront ajoutés ici dynamiquement -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                });
+                groupsContainer.innerHTML = groupsHTML;
+
+                // Afficher le diagramme de suivi des points avec Chart.js
                 const points = [];
                 snapshot.forEach(function(childSnapshot) {
                     const pointsValue = childSnapshot.val().points || 0;
                     points.push(pointsValue);
                 });
-
-                // Afficher le diagramme de suivi des points avec Chart.js
                 const ctx = document.getElementById('points-chart').getContext('2d');
                 const myChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: ['Groupe 1', 'Groupe 2', 'Groupe 3', 'Groupe 4', 'Groupe 5', 'Groupe 6', 'Groupe 7', 'Groupe 8', 'Groupe 9', 'Groupe 10'],
+                        labels: Array.from(snapshot.val(), (val, key) => key),
                         datasets: [{
                             label: 'Points',
                             data: points,
@@ -159,35 +186,8 @@
             });
         }
 
-        // Initialisation des groupes et affichage
+        // Chargement initial des groupes et du diagramme de points
         window.onload = function() {
-            const groupsContainer = document.getElementById('groups-container');
-            let groupsHTML = '';
-            for (let i = 1; i <= 10; i++) {
-                groupsHTML += `
-                    <div class="group-container">
-                        <h2>Groupe ${i}</h2>
-                        <div class="group-buttons">
-                            <button onclick="addPoints('Groupe ${i}')">Ajouter des points</button>
-                            <input type="text" id="Groupe ${i}-points" value="0" readonly>
-                            <button onclick="modifyPoints('Groupe ${i}')">Modifier les points</button>
-                            <table class="group-table">
-                                <thead>
-                                    <tr>
-                                        <th>Détails</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="Groupe ${i}-details-body">
-                                    <!-- Les détails du groupe ${i} seront ajoutés ici dynamiquement -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            }
-            groupsContainer.innerHTML = groupsHTML;
-
-            // Initialisation du diagramme de suivi des points
             updatePointsDiagram();
         };
     </script>
