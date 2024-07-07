@@ -20,72 +20,6 @@
             margin-left: 10px;
         }
     </style>
-    <script>
-        // Fonction pour ajouter des points à un groupe
-        function ajouterPoints(index) {
-            var motCle = prompt("Pour ajouter des points, veuillez saisir le mot-clé :");
-
-            if (motCle === "TLM") {
-                var pointsAjoutes = parseInt(prompt("Combien de points souhaitez-vous ajouter ?"));
-                if (!isNaN(pointsAjoutes) && pointsAjoutes > 0) {
-                    var currentPoints = parseInt(localStorage.getItem("points" + index)) || 0;
-                    var newPoints = currentPoints + pointsAjoutes;
-                    localStorage.setItem("points" + index, newPoints);
-                    document.getElementById("points" + index).innerText = newPoints;
-                    alert(pointsAjoutes + " points ajoutés avec succès !");
-                } else {
-                    alert("Veuillez saisir un nombre valide de points.");
-                }
-            } else {
-                alert("Mot-clé incorrect. Vous n'êtes pas autorisé à ajouter des points.");
-            }
-        }
-
-        // Fonction pour modifier les points d'un groupe
-        function modifierPoints(index) {
-            var motCle = prompt("Pour modifier les points, veuillez saisir le mot-clé :");
-
-            if (motCle === "admin") {
-                var newPoints = parseInt(prompt("Entrez le nouveau nombre de points :"));
-                if (!isNaN(newPoints)) {
-                    localStorage.setItem("points" + index, newPoints);
-                    document.getElementById("points" + index).innerText = newPoints;
-                    alert("Points modifiés avec succès !");
-                } else {
-                    alert("Veuillez saisir un nombre valide de points.");
-                }
-            } else {
-                alert("Mot-clé incorrect. Vous n'êtes pas autorisé à modifier les points.");
-            }
-        }
-
-        // Fonction pour réinitialiser tous les points
-        function resetPoints() {
-            var motCle = prompt("Pour réinitialiser tous les points, veuillez saisir le mot-clé :");
-
-            if (motCle === "1925") {
-                var confirmReset = confirm("Êtes-vous sûr de vouloir réinitialiser tous les points ?");
-                if (confirmReset) {
-                    localStorage.clear();
-                    var groupElements = document.querySelectorAll(".points");
-                    groupElements.forEach(function(element) {
-                        element.innerText = "0";
-                    });
-                    alert("Tous les points ont été réinitialisés !");
-                }
-            } else {
-                alert("Mot-clé incorrect. Vous n'êtes pas autorisé à réinitialiser les points.");
-            }
-        }
-
-        // Chargement initial des points depuis localStorage
-        document.addEventListener("DOMContentLoaded", function() {
-            for (var i = 1; i <= 10; i++) {
-                var points = localStorage.getItem("points" + i) || 0;
-                document.getElementById("points" + i).innerText = points;
-            }
-        });
-    </script>
 </head>
 <body>
     <h1>Welcome to TLM Connecting People Plateforme</h1>
@@ -176,5 +110,114 @@
 
     <!-- Bouton Re-start -->
     <button onclick="resetPoints()">Re-start (Réinitialiser tous les points)</button>
+
+    <!-- Firebase Configuration and SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.4.0/firebase-database.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB5ylD0VICzYIcBEGEDduYotndKz5NrAIY",
+            authDomain: "tlm2020.firebaseapp.com",
+            projectId: "tlm2020",
+            storageBucket: "tlm2020.appspot.com",
+            messagingSenderId: "214565744764",
+            appId: "1:214565744764:web:cc17d2df87206106af19f9",
+            measurementId: "G-9RJK2B6S3S"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Fonction pour ajouter des points à un groupe
+        function ajouterPoints(index) {
+            var motCle = prompt("Pour ajouter des points, veuillez saisir le mot-clé :");
+
+            if (motCle === "TLM") {
+                var pointsAjoutes = parseInt(prompt("Combien de points souhaitez-vous ajouter ?"));
+                if (!isNaN(pointsAjoutes) && pointsAjoutes > 0) {
+                    db.ref("points/" + index).transaction(function(currentPoints) {
+                        return (currentPoints || 0) + pointsAjoutes;
+                    }, function(error, committed, snapshot) {
+                        if (error) {
+                            alert("Une erreur s'est produite lors de l'ajout des points : " + error.message);
+                        } else if (!committed) {
+                            alert("Transaction annulée : le mot-clé est incorrect.");
+                        } else {
+                            var newPoints = snapshot.val();
+                            document.getElementById("points" + index).innerText = newPoints;
+                            alert(pointsAjoutes + " points ajoutés avec succès !");
+                        }
+                    });
+                } else {
+                    alert("Veuillez saisir un nombre valide de points.");
+                }
+            } else {
+                alert("Mot-clé incorrect. Vous n'êtes pas autorisé à ajouter des points.");
+            }
+        }
+
+        // Fonction pour modifier les points d'un groupe
+        function modifierPoints(index) {
+            var motCle = prompt("Pour modifier les points, veuillez saisir le mot-clé :");
+
+            if (motCle === "admin") {
+                var newPoints = parseInt(prompt("Entrez le nouveau nombre de points :"));
+                if (!isNaN(newPoints)) {
+                    db.ref("points/" + index).set(newPoints)
+                        .then(function() {
+                            document.getElementById("points" + index).innerText = newPoints;
+                            alert("Points modifiés avec succès !");
+                        })
+                        .catch(function(error) {
+                            alert("Une erreur s'est produite lors de la modification des points : " + error.message);
+                        });
+                } else {
+                    alert("Veuillez saisir un nombre valide de points.");
+                }
+            } else {
+                alert("Mot-clé incorrect. Vous n'êtes pas autorisé à modifier les points.");
+            }
+        }
+
+        // Fonction pour réinitialiser tous les points
+        function resetPoints() {
+            var motCle = prompt("Pour réinitialiser tous les points, veuillez saisir le mot-clé :");
+
+            if (motCle === "1925") {
+                var confirmReset = confirm("Êtes-vous sûr de vouloir réinitialiser tous les points ?");
+                if (confirmReset) {
+                    db.ref("points").remove()
+                        .then(function() {
+                            var groupElements = document.querySelectorAll(".points");
+                            groupElements.forEach(function(element) {
+                                element.innerText = "0";
+                            });
+                            alert("Tous les points ont été réinitialisés !");
+                        })
+                        .catch(function(error) {
+                            alert("Une erreur s'est produite lors de la réinitialisation des points : " + error.message);
+                        });
+                }
+            } else {
+                alert("Mot-clé incorrect. Vous n'êtes pas autorisé à réinitialiser les points.");
+            }
+        }
+
+        // Chargement initial des points depuis Firebase
+        document.addEventListener("DOMContentLoaded", function() {
+            for (var i = 1; i <= 10; i++) {
+                db.ref("points/" + i).once("value")
+                    .then(function(snapshot) {
+                        var points = snapshot.val() || 0;
+                        document.getElementById("points" + snapshot.key).innerText = points;
+                    })
+                    .catch(function(error) {
+                        console.error("Error loading points: ", error);
+                    });
+            }
+        });
+    </script>
 </body>
 </html>
