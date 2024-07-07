@@ -21,8 +21,8 @@
         }
     </style>
     <!-- Firebase scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js"></script>
     <script>
         // Initialize Firebase
         const firebaseConfig = {
@@ -34,7 +34,7 @@
             appId: "1:214565744764:web:cc17d2df87206106af19f9",
             measurementId: "G-9RJK2B6S3S"
         };
-        firebase.initializeApp(firebaseConfig);
+        const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         // Fonction pour ajouter des points à un groupe
@@ -194,11 +194,7 @@
         </tr>
     </table>
 
-    <!-- Diagramme de suivi -->
-    <h2>Diagramme de suivi du cumul de points</h2>
-    <!-- Ajoutez ici le diagramme de suivi des points des différents groupes -->
-
-    <!-- Bouton Re-start -->
-    <button onclick="resetPoints()">Re-start (Réinitialiser tous les points)</button>
+    <!-- Bouton de réinitialisation des points -->
+    <button onclick="resetPoints()">Réinitialiser tous les points</button>
 </body>
 </html>
