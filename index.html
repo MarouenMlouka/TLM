@@ -3,16 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plateforme de gestion des points</title>
+    <title>Plateforme TLM - Connecting People</title>
+    <style>
+        .group-container {
+            margin-bottom: 20px;
+        }
+        .group-container h2 {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .group-container input[type="number"] {
+            width: 60px;
+            margin-right: 10px;
+        }
+    </style>
     <script>
-        function ajouterPoints() {
+        function ajouterPoints(index) {
             var motCle = prompt("Pour ajouter des points, veuillez saisir le mot-clé :");
 
-            if (motCle === "valide") {
+            if (motCle === "TLM") {
                 var pointsAjoutes = parseInt(prompt("Combien de points souhaitez-vous ajouter ?"));
                 if (!isNaN(pointsAjoutes) && pointsAjoutes > 0) {
+                    var currentPoints = parseInt(document.getElementById("points" + index).innerText);
+                    var newPoints = currentPoints + pointsAjoutes;
+                    document.getElementById("points" + index).innerText = newPoints;
                     alert(pointsAjoutes + " points ajoutés avec succès !");
-                    // Ajoutez ici le code pour réellement ajouter les points à votre système
                 } else {
                     alert("Veuillez saisir un nombre valide de points.");
                 }
@@ -20,10 +35,66 @@
                 alert("Mot-clé incorrect. Vous n'êtes pas autorisé à ajouter des points.");
             }
         }
+
+        function modifierPoints(index) {
+            var motCle = prompt("Pour modifier les points, veuillez saisir le mot-clé :");
+
+            if (motCle === "admin") {
+                var newPoints = parseInt(prompt("Entrez le nouveau nombre de points :"));
+                if (!isNaN(newPoints)) {
+                    document.getElementById("points" + index).innerText = newPoints;
+                    alert("Points modifiés avec succès !");
+                } else {
+                    alert("Veuillez saisir un nombre valide de points.");
+                }
+            } else {
+                alert("Mot-clé incorrect. Vous n'êtes pas autorisé à modifier les points.");
+            }
+        }
+
+        function resetPoints() {
+            var motCle = prompt("Pour réinitialiser tous les points, veuillez saisir le mot-clé :");
+
+            if (motCle === "1925") {
+                var confirmReset = confirm("Êtes-vous sûr de vouloir réinitialiser tous les points ?");
+                if (confirmReset) {
+                    var groupElements = document.querySelectorAll(".group-container span");
+                    groupElements.forEach(function(element) {
+                        element.innerText = "0";
+                    });
+                    alert("Tous les points ont été réinitialisés !");
+                }
+            } else {
+                alert("Mot-clé incorrect. Vous n'êtes pas autorisé à réinitialiser les points.");
+            }
+        }
     </script>
 </head>
 <body>
-    <h1>Plateforme de gestion des points</h1>
-    <button onclick="ajouterPoints()">Ajouter des points</button>
+    <h1>Welcome to TLM Connecting People Plateforme</h1>
+
+    <!-- Groupes -->
+    <div class="group-container">
+        <h2>Groupe 1</h2>
+        <span id="points1">0</span>
+        <button onclick="ajouterPoints(1)">Ajouter des points</button>
+        <button onclick="modifierPoints(1)">Modifier les points</button>
+    </div>
+
+    <div class="group-container">
+        <h2>Groupe 2</h2>
+        <span id="points2">0</span>
+        <button onclick="ajouterPoints(2)">Ajouter des points</button>
+        <button onclick="modifierPoints(2)">Modifier les points</button>
+    </div>
+
+    <!-- Ajoutez ici les autres groupes (Groupe 3 à Groupe 10) de manière similaire -->
+
+    <!-- Diagramme de suivi -->
+    <h2>Diagramme de suivi du cumul de points</h2>
+    <!-- Ajoutez ici le diagramme de suivi des points des différents groupes -->
+
+    <!-- Bouton Re-start -->
+    <button onclick="resetPoints()">Re-start (Réinitialiser tous les points)</button>
 </body>
 </html>
