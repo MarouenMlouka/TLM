@@ -1,66 +1,98 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Votre Application avec Firebase</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLM connecting people</title>
+    <!-- Intégrer les CDN nécessaires, comme Firebase et tout autre bibliothèque JavaScript -->
+    <!-- Exemple de CDN pour Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js"></script>
+    <!-- Intégrer d'autres bibliothèques JavaScript si nécessaire -->
+    <script src="script.js"></script> <!-- Fichier JS pour gérer les interactions -->
+    <style>
+        /* Styles CSS pour la mise en forme */
+        .group-container {
+            margin-bottom: 20px;
+        }
+        .group-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .group-table th, .group-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-  <h1>Formulaire de Contact</h1>
+    <div class="welcome-message">
+        <h1>Welcome to TLM connecting people platform</h1>
+    </div>
+    
+    <div class="group-container">
+        <h2>Groups</h2>
+        <div class="group-buttons">
+            <!-- Boutons pour chaque groupe -->
+            <button onclick="addPoints('Group 1')">Add Points</button>
+            <input type="text" id="group1-points" value="0" readonly>
+            <button onclick="modifyPoints('Group 1')">Modify Points</button>
+            <table class="group-table" id="group1-table">
+                <!-- Tableau pour afficher les détails du groupe 1 -->
+                <thead>
+                    <tr>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="group1-details-body">
+                    <!-- Les détails du groupe 1 seront ajoutés ici dynamiquement -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-  <!-- Scripts Firebase CDN -->
-  <script type="module">
-    // Importer les fonctions nécessaires du SDK Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    <!-- Répéter pour les autres groupes (Group 2 à Group 10) -->
 
-    // Configuration de votre application Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyB5ylD0VICzYIcBEGEDduYotndKz5NrAIY",
-      authDomain: "tlm2020.firebaseapp.com",
-      projectId: "tlm2020",
-      storageBucket: "tlm2020.appspot.com",
-      messagingSenderId: "214565744764",
-      appId: "1:214565744764:web:cc17d2df87206106af19f9",
-      measurementId: "G-9RJK2B6S3S"
-    };
+    <div class="points-diagram">
+        <!-- Diagramme de suivi des points -->
+        <h2>Points Tracking Diagram</h2>
+        <div id="points-chart">
+            <!-- Placeholder pour le diagramme -->
+        </div>
+    </div>
 
-    // Initialisation de Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    <div class="reset-button">
+        <!-- Bouton pour réinitialiser tous les points -->
+        <h2>Reset All Points</h2>
+        <button onclick="resetAllPoints()">Reset Points</button>
+    </div>
 
-    // Fonction pour enregistrer des données dans Firestore
-    async function enregistrerDonnees() {
-      const formulaire = {
-        nom: document.getElementById('nom').value,
-        email: document.getElementById('email').value,
-        message: document.getElementById('message').value
-      };
+    <!-- Script JavaScript pour interagir avec Firebase et gérer les actions -->
+    <script>
+        // Initialiser Firebase avec vos informations de configuration
+        const firebaseConfig = {
+            // Vos clés et paramètres Firebase ici
+        };
+        firebase.initializeApp(firebaseConfig);
 
-      try {
-        const docRef = await addDoc(collection(db, 'messages'), formulaire);
-        console.log('Document ajouté avec ID : ', docRef.id);
-        alert('Données enregistrées avec succès !');
-      } catch (error) {
-        console.error('Erreur lors de l\'ajout du document : ', error);
-        alert('Erreur lors de l\'enregistrement des données.');
-      }
-    }
-  </script>
+        // Exemple de fonction pour ajouter des points à un groupe et mettre à jour les détails
+        function addPoints(group) {
+            // Code pour ajouter des points à Firebase et mettre à jour l'interface utilisateur
+            const groupDetails = "Details will be updated dynamically based on Firebase data"; // Exemple de détails
+            document.getElementById(`group1-details-body`).innerHTML = `<tr><td>${groupDetails}</td></tr>`;
+        }
 
-  <!-- Formulaire HTML -->
-  <form onsubmit="event.preventDefault(); enregistrerDonnees();">
-    <label for="nom">Nom :</label>
-    <input type="text" id="nom" name="nom" required><br><br>
+        // Fonction pour modifier les points d'un groupe
+        function modifyPoints(group) {
+            // Code pour modifier les points à Firebase et mettre à jour l'interface utilisateur
+        }
 
-    <label for="email">Email :</label>
-    <input type="email" id="email" name="email" required><br><br>
-
-    <label for="message">Message :</label><br>
-    <textarea id="message" name="message" rows="4" cols="50" required></textarea><br><br>
-
-    <input type="submit" value="Enregistrer">
-  </form>
-
+        // Fonction pour réinitialiser tous les points
+        function resetAllPoints() {
+            // Code pour réinitialiser tous les points à Firebase et mettre à jour l'interface utilisateur
+        }
+    </script>
 </body>
 </html>
