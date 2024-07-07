@@ -1,82 +1,66 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plateforme TLM - Connecting People</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        table, th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: center;
-        }
-        button {
-            padding: 5px 10px;
-            margin-left: 10px;
-        }
-    </style>
-    <!-- Firebase scripts -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js"></script>
-    <script>
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyB5ylD0VICzYIcBEGEDduYotndKz5NrAIY",
-            authDomain: "tlm2020.firebaseapp.com",
-            projectId: "tlm2020",
-            storageBucket: "tlm2020.appspot.com",
-            messagingSenderId: "214565744764",
-            appId: "1:214565744764:web:cc17d2df87206106af19f9",
-            measurementId: "G-9RJK2B6S3S"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        // Fonction pour ajouter des points à un groupe
-        function ajouterPoints(index) {
-            var pointsAjoutes = parseInt(prompt("Combien de points souhaitez-vous ajouter au groupe " + index + " ?"));
-
-            if (!isNaN(pointsAjoutes) && pointsAjoutes > 0) {
-                // Mettre à jour les points dans Firebase en utilisant une transaction pour la cohérence
-                const pointsRef = db.ref('points/' + index);
-                pointsRef.transaction((currentPoints) => {
-                    return (currentPoints || 0) + pointsAjoutes;
-                }, (error, committed, snapshot) => {
-                    if (error) {
-                        alert("Une erreur est survenue lors de l'ajout des points : " + error.message);
-                    } else if (committed) {
-                        alert(pointsAjoutes + " points ajoutés au groupe " + index + " avec succès !");
-                    }
-                });
-            } else {
-                alert("Veuillez saisir un nombre valide de points supérieur à zéro.");
-            }
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Votre Application avec Firebase</title>
 </head>
 <body>
-    <h1>Welcome to TLM Connecting People Plateforme</h1>
+  <h1>Formulaire de Contact</h1>
 
-    <!-- Tableau des groupes -->
-    <table>
-        <tr>
-            <th>Groupe</th>
-            <th>Nombre de points cumulés</th>
-            <th>Ajouter des points</th>
-        </tr>
-        <!-- Génération dynamique des lignes de tableau -->
-        <!-- Vous pouvez remplacer cela par une boucle JavaScript si nécessaire -->
-        <tr>
-            <td>Groupe 1</td>
-            <td><span id="points1">0</span></td>
-            <td><button onclick="ajouterPoints(1)">Ajouter</button></td>
-        </tr>
-    </table>
+  <!-- Scripts Firebase CDN -->
+  <script type="module">
+    // Importer les fonctions nécessaires du SDK Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    // Configuration de votre application Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyB5ylD0VICzYIcBEGEDduYotndKz5NrAIY",
+      authDomain: "tlm2020.firebaseapp.com",
+      projectId: "tlm2020",
+      storageBucket: "tlm2020.appspot.com",
+      messagingSenderId: "214565744764",
+      appId: "1:214565744764:web:cc17d2df87206106af19f9",
+      measurementId: "G-9RJK2B6S3S"
+    };
+
+    // Initialisation de Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Fonction pour enregistrer des données dans Firestore
+    async function enregistrerDonnees() {
+      const formulaire = {
+        nom: document.getElementById('nom').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value
+      };
+
+      try {
+        const docRef = await addDoc(collection(db, 'messages'), formulaire);
+        console.log('Document ajouté avec ID : ', docRef.id);
+        alert('Données enregistrées avec succès !');
+      } catch (error) {
+        console.error('Erreur lors de l\'ajout du document : ', error);
+        alert('Erreur lors de l\'enregistrement des données.');
+      }
+    }
+  </script>
+
+  <!-- Formulaire HTML -->
+  <form onsubmit="event.preventDefault(); enregistrerDonnees();">
+    <label for="nom">Nom :</label>
+    <input type="text" id="nom" name="nom" required><br><br>
+
+    <label for="email">Email :</label>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label for="message">Message :</label><br>
+    <textarea id="message" name="message" rows="4" cols="50" required></textarea><br><br>
+
+    <input type="submit" value="Enregistrer">
+  </form>
 
 </body>
 </html>
