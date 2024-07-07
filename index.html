@@ -18,14 +18,30 @@
         }
     </style>
     <script>
+        // Fonction pour initialiser les points depuis localStorage ou à zéro par défaut
+        function initialiserPoints(index) {
+            var points = localStorage.getItem('points' + index);
+            if (points === null) {
+                return 0;
+            } else {
+                return parseInt(points);
+            }
+        }
+
+        // Fonction pour sauvegarder les points dans localStorage
+        function sauvegarderPoints(index, points) {
+            localStorage.setItem('points' + index, points.toString());
+        }
+
         function ajouterPoints(index) {
             var motCle = prompt("Pour ajouter des points, veuillez saisir le mot-clé :");
 
             if (motCle === "TLM") {
                 var pointsAjoutes = parseInt(prompt("Combien de points souhaitez-vous ajouter ?"));
                 if (!isNaN(pointsAjoutes) && pointsAjoutes > 0) {
-                    var currentPoints = parseInt(document.getElementById("points" + index).innerText);
+                    var currentPoints = initialiserPoints(index);
                     var newPoints = currentPoints + pointsAjoutes;
+                    sauvegarderPoints(index, newPoints);
                     document.getElementById("points" + index).innerText = newPoints;
                     alert(pointsAjoutes + " points ajoutés avec succès !");
                 } else {
@@ -42,6 +58,7 @@
             if (motCle === "admin") {
                 var newPoints = parseInt(prompt("Entrez le nouveau nombre de points :"));
                 if (!isNaN(newPoints)) {
+                    sauvegarderPoints(index, newPoints);
                     document.getElementById("points" + index).innerText = newPoints;
                     alert("Points modifiés avec succès !");
                 } else {
@@ -58,6 +75,7 @@
             if (motCle === "1925") {
                 var confirmReset = confirm("Êtes-vous sûr de vouloir réinitialiser tous les points ?");
                 if (confirmReset) {
+                    localStorage.clear();
                     var groupElements = document.querySelectorAll(".group-container span");
                     groupElements.forEach(function(element) {
                         element.innerText = "0";
@@ -68,6 +86,14 @@
                 alert("Mot-clé incorrect. Vous n'êtes pas autorisé à réinitialiser les points.");
             }
         }
+
+        // Fonction pour charger les points au chargement de la page
+        window.onload = function() {
+            for (var i = 1; i <= 10; i++) {
+                var points = initialiserPoints(i);
+                document.getElementById("points" + i).innerText = points;
+            }
+        };
     </script>
 </head>
 <body>
@@ -81,68 +107,7 @@
         <button onclick="modifierPoints(1)">Modifier les points</button>
     </div>
 
-    <div class="group-container">
-        <h2>Groupe 2</h2>
-        <span id="points2">0</span>
-        <button onclick="ajouterPoints(2)">Ajouter des points</button>
-        <button onclick="modifierPoints(2)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 3</h2>
-        <span id="points3">0</span>
-        <button onclick="ajouterPoints(3)">Ajouter des points</button>
-        <button onclick="modifierPoints(3)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 4</h2>
-        <span id="points4">0</span>
-        <button onclick="ajouterPoints(4)">Ajouter des points</button>
-        <button onclick="modifierPoints(4)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 5</h2>
-        <span id="points5">0</span>
-        <button onclick="ajouterPoints(5)">Ajouter des points</button>
-        <button onclick="modifierPoints(5)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 6</h2>
-        <span id="points6">0</span>
-        <button onclick="ajouterPoints(6)">Ajouter des points</button>
-        <button onclick="modifierPoints(6)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 7</h2>
-        <span id="points7">0</span>
-        <button onclick="ajouterPoints(7)">Ajouter des points</button>
-        <button onclick="modifierPoints(7)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 8</h2>
-        <span id="points8">0</span>
-        <button onclick="ajouterPoints(8)">Ajouter des points</button>
-        <button onclick="modifierPoints(8)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 9</h2>
-        <span id="points9">0</span>
-        <button onclick="ajouterPoints(9)">Ajouter des points</button>
-        <button onclick="modifierPoints(9)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 10</h2>
-        <span id="points10">0</span>
-        <button onclick="ajouterPoints(10)">Ajouter des points</button>
-        <button onclick="modifierPoints(10)">Modifier les points</button>
-    </div>
+    <!-- Répétez cette structure pour les autres groupes (Groupe 2 à Groupe 10) -->
 
     <!-- Diagramme de suivi -->
     <h2>Diagramme de suivi du cumul de points</h2>
