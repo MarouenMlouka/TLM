@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plateforme TLM - Connecting People</title>
     <style>
-        .group-container {
+        table {
+            width: 100%;
+            border-collapse: collapse;
             margin-bottom: 20px;
         }
-        .group-container h2 {
-            display: inline-block;
-            margin-right: 10px;
+        table, th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
         }
-        .group-container input[type="number"] {
-            width: 60px;
-            margin-right: 10px;
+        button {
+            padding: 5px 10px;
+            margin-left: 10px;
         }
     </style>
     <script>
@@ -24,8 +27,9 @@
             if (motCle === "TLM") {
                 var pointsAjoutes = parseInt(prompt("Combien de points souhaitez-vous ajouter ?"));
                 if (!isNaN(pointsAjoutes) && pointsAjoutes > 0) {
-                    var currentPoints = parseInt(document.getElementById("points" + index).innerText);
+                    var currentPoints = parseInt(localStorage.getItem("points" + index)) || 0;
                     var newPoints = currentPoints + pointsAjoutes;
+                    localStorage.setItem("points" + index, newPoints);
                     document.getElementById("points" + index).innerText = newPoints;
                     alert(pointsAjoutes + " points ajoutés avec succès !");
                 } else {
@@ -42,6 +46,7 @@
             if (motCle === "admin") {
                 var newPoints = parseInt(prompt("Entrez le nouveau nombre de points :"));
                 if (!isNaN(newPoints)) {
+                    localStorage.setItem("points" + index, newPoints);
                     document.getElementById("points" + index).innerText = newPoints;
                     alert("Points modifiés avec succès !");
                 } else {
@@ -58,7 +63,8 @@
             if (motCle === "1925") {
                 var confirmReset = confirm("Êtes-vous sûr de vouloir réinitialiser tous les points ?");
                 if (confirmReset) {
-                    var groupElements = document.querySelectorAll(".group-container span");
+                    localStorage.clear();
+                    var groupElements = document.querySelectorAll(".points");
                     groupElements.forEach(function(element) {
                         element.innerText = "0";
                     });
@@ -68,81 +74,98 @@
                 alert("Mot-clé incorrect. Vous n'êtes pas autorisé à réinitialiser les points.");
             }
         }
+
+        // Chargement initial des points depuis localStorage
+        document.addEventListener("DOMContentLoaded", function() {
+            for (var i = 1; i <= 10; i++) {
+                var points = localStorage.getItem("points" + i) || 0;
+                document.getElementById("points" + i).innerText = points;
+            }
+        });
     </script>
 </head>
 <body>
     <h1>Welcome to TLM Connecting People Plateforme</h1>
 
-    <!-- Groupes -->
-    <div class="group-container">
-        <h2>Groupe 1</h2>
-        <span id="points1">0</span>
-        <button onclick="ajouterPoints(1)">Ajouter des points</button>
-        <button onclick="modifierPoints(1)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 2</h2>
-        <span id="points2">0</span>
-        <button onclick="ajouterPoints(2)">Ajouter des points</button>
-        <button onclick="modifierPoints(2)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 3</h2>
-        <span id="points3">0</span>
-        <button onclick="ajouterPoints(3)">Ajouter des points</button>
-        <button onclick="modifierPoints(3)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 4</h2>
-        <span id="points4">0</span>
-        <button onclick="ajouterPoints(4)">Ajouter des points</button>
-        <button onclick="modifierPoints(4)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 5</h2>
-        <span id="points5">0</span>
-        <button onclick="ajouterPoints(5)">Ajouter des points</button>
-        <button onclick="modifierPoints(5)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 6</h2>
-        <span id="points6">0</span>
-        <button onclick="ajouterPoints(6)">Ajouter des points</button>
-        <button onclick="modifierPoints(6)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 7</h2>
-        <span id="points7">0</span>
-        <button onclick="ajouterPoints(7)">Ajouter des points</button>
-        <button onclick="modifierPoints(7)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 8</h2>
-        <span id="points8">0</span>
-        <button onclick="ajouterPoints(8)">Ajouter des points</button>
-        <button onclick="modifierPoints(8)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 9</h2>
-        <span id="points9">0</span>
-        <button onclick="ajouterPoints(9)">Ajouter des points</button>
-        <button onclick="modifierPoints(9)">Modifier les points</button>
-    </div>
-
-    <div class="group-container">
-        <h2>Groupe 10</h2>
-        <span id="points10">0</span>
-        <button onclick="ajouterPoints(10)">Ajouter des points</button>
-        <button onclick="modifierPoints(10)">Modifier les points</button>
-    </div>
+    <!-- Tableau des groupes -->
+    <table>
+        <tr>
+            <th>Groupe</th>
+            <th>Nombre de points cumulés</th>
+            <th>Ajouter des points</th>
+            <th>Modifier les points</th>
+        </tr>
+        <!-- Groupe 1 -->
+        <tr>
+            <td>Groupe 1</td>
+            <td><span id="points1" class="points">0</span></td>
+            <td><button onclick="ajouterPoints(1)">Ajouter</button></td>
+            <td><button onclick="modifierPoints(1)">Modifier</button></td>
+        </tr>
+        <!-- Groupe 2 -->
+        <tr>
+            <td>Groupe 2</td>
+            <td><span id="points2" class="points">0</span></td>
+            <td><button onclick="ajouterPoints(2)">Ajouter</button></td>
+            <td><button onclick="modifierPoints(2)">Modifier</button></td>
+        </tr>
+        <!-- Groupe 3 -->
+        <tr>
+            <td>Groupe 3</td>
+            <td><span id="points3" class="points">0</span></td>
+            <td><button onclick="ajouterPoints(3)">Ajouter</button></td>
+            <td><button onclick="modifierPoints(3)">Modifier</button></td>
+        </tr>
+        <!-- Groupe 4 -->
+        <tr>
+            <td>Groupe 4</td>
+            <td><span id="points4" class="points">0</span></td>
+            <td><button onclick="ajouterPoints(4)">Ajouter</button></td>
+            <td><button onclick="modifierPoints(4)">Modifier</button></td>
+        </tr>
+        <!-- Groupe 5 -->
+        <tr>
+            <td>Groupe 5</td>
+            <td><span id="points5" class="points">0</span></td>
+            <td><button onclick="ajouterPoints(5)">Ajouter</button></td>
+            <td><button onclick="modifierPoints(5)">Modifier</button></td>
+        </tr>
+        <!-- Groupe 6 -->
+        <tr>
+            <td>Groupe 6</td>
+            <td><span id="points6" class="points">0</span></td>
+            <td><button onclick="ajouterPoints(6)">Ajouter</button></td>
+            <td><button onclick="modifierPoints(6)">Modifier</button></td>
+        </tr>
+        <!-- Groupe 7 -->
+        <tr>
+            <td>Groupe 7</td>
+            <td><span id="points7" class="points">0</span></td>
+            <td><button onclick="ajouterPoints(7)">Ajouter</button></td>
+            <td><button onclick="modifierPoints(7)">Modifier</button></td>
+        </tr>
+        <!-- Groupe 8 -->
+        <tr>
+            <td>Groupe 8</td>
+            <td><span id="points8" class="points">0</span></td>
+            <td><button onclick="ajouterPoints(8)">Ajouter</button></td>
+            <td><button onclick="modifierPoints(8)">Modifier</button></td>
+        </tr>
+        <!-- Groupe 9 -->
+        <tr>
+            <td>Groupe 9</td>
+            <td><span id="points9" class="points">0</span></td>
+            <td><button onclick="ajouterPoints(9)">Ajouter</button></td>
+            <td><button onclick="modifierPoints(9)">Modifier</button></td>
+        </tr>
+        <!-- Groupe 10 -->
+        <tr>
+            <td>Groupe 10</td>
+            <td><span id="points10" class="points">0</span></td>
+            <td><button onclick="ajouterPoints(10)">Ajouter</button></td>
+            <td><button onclick="modifierPoints(10)">Modifier</button></td>
+        </tr>
+    </table>
 
     <!-- Diagramme de suivi -->
     <h2>Diagramme de suivi du cumul de points</h2>
